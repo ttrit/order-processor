@@ -1,24 +1,24 @@
-﻿using LegacyOrderService.Data;
+﻿using LegacyOrderService.Persistences.UnitOfWork;
 
 namespace LegacyOrderService.Services
 {
     public interface IProductService
     {
-        Task<decimal> GetPrice(string productName);
+        Task<decimal> GetProductPriceAsync(string productName);
     }
 
     public class ProductService : IProductService
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductService(IProductRepository productRepository)
+        public ProductService(IUnitOfWork unitOfWork)
         {
-            _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
-        public async Task<decimal> GetPrice(string productName)
+        public async Task<decimal> GetProductPriceAsync(string productName)
         {
-            return Convert.ToDecimal(await _productRepository.GetPrice(productName));
+            return await _unitOfWork.Products.GetPriceAsync(productName);
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using LegacyOrderService.Data;
-using LegacyOrderService.Persistences.DbModels;
+﻿using LegacyOrderService.Persistences.DbModels;
+using LegacyOrderService.Repositories;
 
 namespace LegacyOrderService.Persistences.UnitOfWork
 {

@@ -1,8 +1,8 @@
 using FluentValidation;
-using LegacyOrderService.Data;
 using LegacyOrderService.Models;
 using LegacyOrderService.Persistences;
 using LegacyOrderService.Persistences.UnitOfWork;
+using LegacyOrderService.Repositories;
 using LegacyOrderService.Services;
 using LegacyOrderService.Validations;
 using Microsoft.EntityFrameworkCore;
