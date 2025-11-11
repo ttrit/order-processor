@@ -3,7 +3,7 @@ namespace LegacyOrderService.Data
 {
     public interface IProductRepository
     {
-        decimal GetPrice(string productName);
+        Task<decimal> GetPrice(string productName);
     }
 
     public class ProductRepository : IProductRepository
@@ -15,13 +15,13 @@ namespace LegacyOrderService.Data
             ["Doohickey"] = 8.75m
         };
 
-        public decimal GetPrice(string productName)
+        public Task<decimal> GetPrice(string productName)
         {
             // Simulate an expensive lookup
             Thread.Sleep(500);
 
             if (_productPrices.TryGetValue(productName, out var price))
-                return price;
+                return Task.FromResult(price);
 
             throw new Exception("Product not found");
         }
