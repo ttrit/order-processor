@@ -1,29 +1,25 @@
-﻿// Data/ProductRepository.cs
-namespace LegacyOrderService.Data
+﻿using LegacyOrderService.Persistences;
+using LegacyOrderService.Persistences.DbModels;
+using Microsoft.EntityFrameworkCore;
+
+namespace LegacyOrderService.Repositories
 {
-    public interface IProductRepository
+    public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
-        Task<decimal> GetPrice(string productName);
-    }
-
-    public class ProductRepository : IProductRepository
-    {
-        private readonly Dictionary<string, decimal> _productPrices = new()
+        public ProductRepository(AppDbContext context) : base(context)
         {
-            ["Widget"] = 12.99m,
-            ["Gadget"] = 15.49m,
-            ["Doohickey"] = 8.75m
-        };
+        }
 
-        public Task<decimal> GetPrice(string productName)
+        public async Task<decimal> GetPriceAsync(string productName)
         {
-            // Simulate an expensive lookup
-            Thread.Sleep(500);
+            var product = await _dbSet
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Name == productName);
 
-            if (_productPrices.TryGetValue(productName, out var price))
-                return Task.FromResult(price);
+            if (product == null)
+                throw new KeyNotFoundException($"Product '{productName}' not found in database.");
 
-            throw new Exception("Product not found");
+            return product.Price;
         }
     }
 }

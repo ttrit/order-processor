@@ -32,7 +32,7 @@ namespace LegacyOrderService
                 Console.Write("Enter product name: ");
                 order.ProductName = Console.ReadLine() ?? string.Empty;
 
-                order.Price = await _productService.GetPrice(order.ProductName);
+                order.Price = await _productService.GetProductPriceAsync(order.ProductName);
 
                 Console.Write("Enter quantity: ");
                 if (!int.TryParse(Console.ReadLine(), out int quantity))
