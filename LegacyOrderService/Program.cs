@@ -5,6 +5,7 @@ using LegacyOrderService.Persistences.UnitOfWork;
 using LegacyOrderService.Repositories;
 using LegacyOrderService.Services;
 using LegacyOrderService.Validations;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,24 +20,23 @@ namespace LegacyOrderService
             var builder = Host.CreateApplicationBuilder(args);
 
             builder.Configuration.AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true);
-            var connectionString = builder.Configuration.GetConnectionString("OrdersDb");
+            var masterConnectionString = builder.Configuration.GetConnectionString("MasterDb");
+            var orderConnectionString = builder.Configuration.GetConnectionString("OrdersDb");
 
-            InitializeDependencies(builder, connectionString);
+            InitializeDatabase(builder, masterConnectionString, orderConnectionString);
+            InitializeDependencies(builder);
 
             using var host = builder.Build();
             var orderProcessor = host.Services.GetRequiredService<OrderProcessor>();
             await orderProcessor.RunAsync();
         }
 
-        static void InitializeDependencies(HostApplicationBuilder builder, string connectionString)
+        static void InitializeDependencies(HostApplicationBuilder builder)
         {
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(connectionString), ServiceLifetime.Singleton);
-
             // AutoMapper configuration
             builder.Services.AddAutoMapper(cfg =>
             {
-                cfg.CreateMap<Models.Order, Persistences.DbModels.Order>().ReverseMap();
+                cfg.CreateMap<Order, Persistences.DbModels.Order>().ReverseMap();
             });
 
             // Register services and repositories
@@ -51,6 +51,27 @@ namespace LegacyOrderService
             builder.Services.AddTransient<IValidator<Order>, OrderValidator>();
 
             builder.Services.AddTransient<OrderProcessor>();
+        }
+
+        static void InitializeDatabase(HostApplicationBuilder builder, string masterConnectionString, string orderConnectionString)
+        {
+            using (var connection = new SqlConnection(masterConnectionString))
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "IF DB_ID('OrdersDb') IS NULL CREATE DATABASE OrdersDb;";
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+            optionsBuilder.UseSqlServer(orderConnectionString);
+
+            using var context = new AppDbContext(optionsBuilder.Options);
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(orderConnectionString), ServiceLifetime.Singleton);
         }
     }
 }

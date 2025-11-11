@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: orderprocessor-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Passw0rd2025
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - orderprocessor-network
+
+  # orderprocessor:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: orderprocessor-app
+  #   depends_on:
+  #     sqlserver:
+  #       condition: service_healthy
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Production
+  #     - ConnectionStrings__OrdersDb=Server=sqlserver;Database=OrderProcessorDb;User Id=sa;Password=Passw0rd2025;TrustServerCertificate=True;
+  #   networks:
+  #     - orderprocessor-network
+  #   stdin_open: true
+  #   tty: true
+
+volumes:
+  sql_data:
+
+networks:
+  orderprocessor-network:
