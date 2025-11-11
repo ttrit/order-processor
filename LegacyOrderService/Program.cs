@@ -31,7 +31,7 @@ namespace LegacyOrderService
         static void InitializeDependencies(HostApplicationBuilder builder, string connectionString)
         {
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite(connectionString), ServiceLifetime.Singleton);
+                options.UseSqlServer(connectionString), ServiceLifetime.Singleton);
 
             // AutoMapper configuration
             builder.Services.AddAutoMapper(cfg =>
