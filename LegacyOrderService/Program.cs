@@ -1,7 +1,10 @@
+using FluentValidation;
 using LegacyOrderService.Data;
+using LegacyOrderService.Models;
 using LegacyOrderService.Persistences;
 using LegacyOrderService.Persistences.UnitOfWork;
 using LegacyOrderService.Services;
+using LegacyOrderService.Validations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,10 +44,11 @@ namespace LegacyOrderService
             builder.Services.AddScoped<IProductService, ProductService>();
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            builder.Services.AddTransient<IValidator<Order>, OrderValidator>();
 
             builder.Services.AddTransient<OrderProcessor>();
         }
