@@ -1,4 +1,5 @@
-﻿using LegacyOrderService.Services;
+﻿using LegacyOrderService.Models;
+using LegacyOrderService.Services;
 
 namespace LegacyOrderService
 {
@@ -15,23 +16,24 @@ namespace LegacyOrderService
             _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         }
 
-        public void Run()
+        public async Task RunAsync()
         {
+            var order = new Order();
             Console.WriteLine("Welcome to Order Processor!");
             Console.WriteLine("Enter customer name: ");
-            string name = Console.ReadLine();
+            order.CustomerName = Console.ReadLine();
 
             Console.WriteLine("Enter product name: ");
-            string productName = Console.ReadLine();
+            order.ProductName = Console.ReadLine();
 
-            decimal price = _productService.GetPrice(productName);
+            order.Price = await _productService.GetPrice(order.ProductName);
 
             Console.WriteLine("Enter quantity: ");
-            int qty = Convert.ToInt32(Console.ReadLine());
+            order.Quantity = Convert.ToInt32(Console.ReadLine());
 
             Console.WriteLine("Processing order...");
 
-            var order = _orderService.CreateOrder(name, productName, qty, price);
+            var createdOrder = await _orderService.CreateOrder(order);
 
             Console.WriteLine("Order completed!");
             Console.WriteLine($"Customer: {order.CustomerName}");

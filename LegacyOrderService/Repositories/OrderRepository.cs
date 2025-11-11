@@ -1,40 +1,26 @@
-using LegacyOrderService.Models;
-using Microsoft.Data.Sqlite;
+using LegacyOrderService.Persistences;
+using LegacyOrderService.Persistences.DbModels;
 
 namespace LegacyOrderService.Data
 {
     public interface IOrderRepository
     {
-        void Save(Order order);
+        Task SaveAsync(Order order);
     }
 
     public class OrderRepository : IOrderRepository
     {
-        private string _connectionString = $"Data Source={Path.Combine(AppContext.BaseDirectory, @"..\..\..\orders.db")}";
+        private readonly AppDbContext _dbContext;
 
-
-        public void Save(Order order)
+        public OrderRepository(AppDbContext dbContext)
         {
-            var connection = new SqliteConnection(_connectionString);
-            
-            connection.Open();
-
-            var command = connection.CreateCommand();
-            command.CommandText = $@"
-                INSERT INTO Orders (CustomerName, ProductName, Quantity, Price)
-                VALUES ('{order.CustomerName}', '{order.ProductName}', {order.Quantity}, {order.Price})";
-
-            command.ExecuteNonQuery();            
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public void SeedBadData()
+        public async Task SaveAsync(Order order)
         {
-            var connection = new SqliteConnection(_connectionString);            
-            connection.Open();
-            var cmd = connection.CreateCommand();
-            cmd.CommandText = "INSERT INTO Orders (CustomerName, ProductName, Quantity, Price) VALUES ('John', 'Widget', 9999, 9.99)";
-            cmd.ExecuteNonQuery();
-            
+            _dbContext.Orders.Add(order);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

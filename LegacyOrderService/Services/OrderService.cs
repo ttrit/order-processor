@@ -1,34 +1,31 @@
-﻿using LegacyOrderService.Data;
+﻿using AutoMapper;
+using LegacyOrderService.Data;
 using LegacyOrderService.Models;
 
 namespace LegacyOrderService.Services
 {
     public interface IOrderService
     {
-        Order CreateOrder(string customerName, string productName, int quantity, decimal price);
+        Task<Order> CreateOrder(Order order);
     }
 
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository)
+        public OrderService(IOrderRepository orderRepository, IMapper mapper)
         {
             _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        public Order CreateOrder(string customerName, string productName, int quantity, decimal price)
+        public async Task<Order> CreateOrder(Order order)
         {
-            var newOrder = new Order
-            {
-                CustomerName = customerName,
-                ProductName = productName,
-                Quantity = quantity,
-                Price = price
-            };
+            var newOrder = _mapper.Map<Order, Persistences.DbModels.Order>(order);
 
-            _orderRepository.Save(newOrder);
-            return newOrder;
+            await _orderRepository.SaveAsync(newOrder);
+            return order;
         }
     }
 }

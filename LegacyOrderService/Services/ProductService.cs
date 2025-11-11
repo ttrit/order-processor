@@ -4,7 +4,7 @@ namespace LegacyOrderService.Services
 {
     public interface IProductService
     {
-        decimal GetPrice(string productName);
+        Task<decimal> GetPrice(string productName);
     }
 
     public class ProductService : IProductService
@@ -16,9 +16,9 @@ namespace LegacyOrderService.Services
             _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         }
 
-        public decimal GetPrice(string productName)
+        public async Task<decimal> GetPrice(string productName)
         {
-            return Convert.ToDecimal(_productRepository.GetPrice(productName));
+            return Convert.ToDecimal(await _productRepository.GetPrice(productName));
         }
     }
 }
