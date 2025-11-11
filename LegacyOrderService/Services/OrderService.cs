@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using LegacyOrderService.Data;
 using LegacyOrderService.Models;
+using LegacyOrderService.Persistences.UnitOfWork;
 
 namespace LegacyOrderService.Services
 {
@@ -11,12 +11,12 @@ namespace LegacyOrderService.Services
 
     public class OrderService : IOrderService
     {
-        private readonly IOrderRepository _orderRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository, IMapper mapper)
+        public OrderService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
@@ -24,7 +24,8 @@ namespace LegacyOrderService.Services
         {
             var newOrder = _mapper.Map<Order, Persistences.DbModels.Order>(order);
 
-            await _orderRepository.SaveAsync(newOrder);
+            await _unitOfWork.Orders.AddAsync(newOrder);
+            await _unitOfWork.SaveChangesAsync();
             return order;
         }
     }

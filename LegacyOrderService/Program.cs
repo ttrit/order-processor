@@ -1,5 +1,6 @@
 using LegacyOrderService.Data;
 using LegacyOrderService.Persistences;
+using LegacyOrderService.Persistences.UnitOfWork;
 using LegacyOrderService.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -39,8 +40,11 @@ namespace LegacyOrderService
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IProductService, ProductService>();
 
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddTransient<OrderProcessor>();
         }
