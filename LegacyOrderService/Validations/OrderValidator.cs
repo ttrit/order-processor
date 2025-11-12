@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using LegacyOrderService.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LegacyOrderService.Validations
 {
@@ -20,8 +15,6 @@ namespace LegacyOrderService.Validations
                 .MaximumLength(100).WithMessage("Product name cannot exceed 100 characters.");
             RuleFor(order => order.Quantity)
                 .GreaterThan(0).WithMessage("Quantity must be greater than zero.");
-            RuleFor(order => order.Price)
-                .GreaterThan(0).WithMessage("Price must be greater than zero.");
         }
     }
 }
