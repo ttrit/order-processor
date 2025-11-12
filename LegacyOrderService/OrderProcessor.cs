@@ -42,6 +42,7 @@ namespace LegacyOrderService
                 }
 
                 order.Quantity = quantity;
+                order.Total = order.Price * order.Quantity;
 
                 // Validate order
                 var result = await _orderValidator.ValidateAsync(order);
@@ -56,12 +57,13 @@ namespace LegacyOrderService
                 }
 
                 Console.WriteLine("Processing order...");
-                var createdOrder = await _orderService.CreateOrder(order);
+                _ = await _orderService.CreateOrder(order);
 
                 Console.WriteLine("Order completed!");
                 Console.WriteLine($"Customer: {order.CustomerName}");
                 Console.WriteLine($"Product: {order.ProductName}");
                 Console.WriteLine($"Quantity: {order.Quantity}");
+                Console.WriteLine($"Total: {order.Total}");
                 Console.WriteLine($"Done.");
             }
             catch (Exception ex)
