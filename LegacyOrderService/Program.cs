@@ -39,6 +39,8 @@ namespace LegacyOrderService
                 cfg.CreateMap<Order, Persistences.DbModels.Order>().ReverseMap();
             });
 
+            builder.Services.AddMemoryCache();
+
             // Register services and repositories
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IProductService, ProductService>();
@@ -55,21 +57,6 @@ namespace LegacyOrderService
 
         static void InitializeDatabase(HostApplicationBuilder builder, string masterConnectionString, string orderConnectionString)
         {
-            using (var connection = new SqlConnection(masterConnectionString))
-            {
-                connection.Open();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "IF DB_ID('OrdersDb') IS NULL CREATE DATABASE OrdersDb;";
-                    command.ExecuteNonQuery();
-                }
-            }
-
-            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlServer(orderConnectionString);
-
-            using var context = new AppDbContext(optionsBuilder.Options);
-
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(orderConnectionString), ServiceLifetime.Singleton);
         }
