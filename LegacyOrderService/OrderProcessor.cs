@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using LegacyOrderService.Models;
 using LegacyOrderService.Services;
+using Microsoft.Extensions.Logging;
 
 namespace LegacyOrderService
 {
@@ -9,15 +10,18 @@ namespace LegacyOrderService
         private readonly IOrderService _orderService;
         private readonly IProductService _productService;
         private readonly IValidator<Order> _orderValidator;
+        private readonly ILogger<OrderProcessor> _logger;
 
         public OrderProcessor(
             IOrderService orderService,
             IProductService productService,
-            IValidator<Order> orderValidator)
+            IValidator<Order> orderValidator,
+            ILogger<OrderProcessor> logger)
         {
             _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
             _productService = productService ?? throw new ArgumentNullException(nameof(productService));
             _orderValidator = orderValidator ?? throw new ArgumentNullException(nameof(orderValidator));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task RunAsync()
@@ -32,8 +36,6 @@ namespace LegacyOrderService
                 Console.Write("Enter product name: ");
                 order.ProductName = Console.ReadLine() ?? string.Empty;
 
-                order.Price = await _productService.GetProductPriceAsync(order.ProductName);
-
                 Console.Write("Enter quantity: ");
                 if (!int.TryParse(Console.ReadLine(), out int quantity))
                 {
@@ -42,7 +44,6 @@ namespace LegacyOrderService
                 }
 
                 order.Quantity = quantity;
-                order.Total = order.Price * order.Quantity;
 
                 // Validate order
                 var result = await _orderValidator.ValidateAsync(order);
@@ -56,6 +57,9 @@ namespace LegacyOrderService
                     return;
                 }
 
+                order.Price = await _productService.GetProductPriceAsync(order.ProductName);
+                order.Total = order.Price * order.Quantity;
+
                 Console.WriteLine("Processing order...");
                 _ = await _orderService.CreateOrder(order);
 
@@ -68,6 +72,7 @@ namespace LegacyOrderService
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while processing the order.");
                 Console.WriteLine(ex.Message);
             }
         }

@@ -5,7 +5,6 @@ using LegacyOrderService.Persistences.UnitOfWork;
 using LegacyOrderService.Repositories;
 using LegacyOrderService.Services;
 using LegacyOrderService.Validations;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +37,8 @@ namespace LegacyOrderService
             {
                 cfg.CreateMap<Order, Persistences.DbModels.Order>().ReverseMap();
             });
+
+            builder.Services.AddLogging();
 
             builder.Services.AddMemoryCache();
 
