@@ -39,6 +39,8 @@ namespace LegacyOrderService
                 cfg.CreateMap<Order, Persistences.DbModels.Order>().ReverseMap();
             });
 
+            builder.Services.AddMemoryCache();
+
             // Register services and repositories
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IProductService, ProductService>();
