@@ -59,7 +59,7 @@ namespace LegacyOrderService
         static void InitializeDatabase(HostApplicationBuilder builder, string masterConnectionString, string orderConnectionString)
         {
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(orderConnectionString), ServiceLifetime.Singleton);
+                options.UseSqlServer(orderConnectionString));
         }
     }
 }
